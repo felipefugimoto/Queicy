@@ -13,7 +13,7 @@ const router = createRouter({
       path: '/about',
       name: 'about',
      
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/ClienteView.vue')
     },
     {
       path: '/cliente',
@@ -21,7 +21,30 @@ const router = createRouter({
      
       component: () => import('../views/ClienteView.vue')
     },
-
+    {
+      path: '/add_cliente',
+      name: 'add_cliente',
+     
+      component: () => import('../views/AddClienteView.vue')
+    },
+    {
+      path: '/servico',
+      name: 'servico',
+     
+      component: () => import('../views/ServicoView.vue')
+    },
+    {
+      path: '/profissional',
+      name: 'profissional',
+     
+      component: () => import('../views/ProfissionalView.vue')
+    },
+    {
+      path: '/status-cliente',
+      name: 'status-cliente',
+     
+      component: () => import('../views/StatusClienteView.vue')
+    },
     
   ]
 })

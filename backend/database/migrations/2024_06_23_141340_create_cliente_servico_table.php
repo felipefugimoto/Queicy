@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('servicos', function (Blueprint $table) {
+        Schema::create('
+        ', function (Blueprint $table) {
             $table->id();
-            $table->string('tipo',100);
-            $table->decimal('preco',10,2);
-            $table->time('duracao');
+            $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
+            $table->foreignId('servico_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('agendamento_id');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('servicos');
+        Schema::dropIfExists('cliente_servico');
     }
 };

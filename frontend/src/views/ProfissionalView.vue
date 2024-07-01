@@ -1,13 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import TabelaCliente from '@/components/TabelaCliente.vue';
+import TabelaProfissional from '@/components/TabelaProfissional.vue';
 
 </script>
 
 <template>
   <main id="main" class="main" >
-   <TabelaCliente/>
+   <TabelaProfissional/>
   </main>
 </template>
 

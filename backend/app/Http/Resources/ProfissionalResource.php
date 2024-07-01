@@ -15,6 +15,7 @@ class ProfissionalResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id'=>$this->id,
             'nome_profissional'=>$this->nome,
             'telefone'=>$this->telefone,
             'email'=>$this->email,

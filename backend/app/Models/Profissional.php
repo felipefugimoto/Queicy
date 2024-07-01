@@ -10,6 +10,7 @@ class Profissional extends Model
     use HasFactory;
     protected $table = 'profissionais';
     protected $fillable=[
+        'id',
         'nome',
         'telefone',
         'email',

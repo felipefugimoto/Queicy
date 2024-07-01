@@ -11,6 +11,7 @@ export default {
 
 <template>
   <main id="main" class="main">
+    
     <Agenda />
   
   </main>

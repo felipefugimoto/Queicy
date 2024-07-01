@@ -25,20 +25,21 @@ import Heeader_ from '../components/Header_.vue'
                         class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    
+                      
                     <li>
-                        <a href="components-alerts.html">
-                            <i class="bi bi-circle"></i><span>Data e Hora</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="components-accordion.html">
+                        <router-link class="nav-link " to="/profissional">
+                           
                             <i class="bi bi-circle"></i><span>Profissional</span>
-                        </a>
+                        </router-link>
+                       
                     </li>
                     <li>
-                        <a href="components-badges.html">
+                        <router-link class="nav-link " to="/servico">
+                           
                             <i class="bi bi-circle"></i><span>Serviços</span>
-                        </a>
+                        </router-link>
+                        
                     </li>
 
                 </ul>
@@ -50,21 +51,25 @@ import Heeader_ from '../components/Header_.vue'
                 </a>
                 <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="forms-elements.html">
+                        <router-link class="nav-link " to="/add_cliente">
+                           
                             <i class="bi bi-circle"></i><span>Cadastrar</span>
-                        </a>
+                        </router-link>
+                        
                     </li>
                     <li>
                         <router-link class="nav-link " to="/cliente">
-                           
+                            
                             <i class="bi bi-circle"></i><span>Cliente</span>
                         </router-link>
                         
                     </li>
                     <li>
-                        <a href="forms-editors.html">
+                        <router-link class="nav-link " to="/status-cliente">
+                           
                             <i class="bi bi-circle"></i><span>Status</span>
-                        </a>
+                        </router-link>
+                       
                     </li>
 
                 </ul>

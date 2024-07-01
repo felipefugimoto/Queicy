@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,6 +20,8 @@ class ClienteResouce extends JsonResource
             'nome_completo'=>$this->nome,
             'telefone'=>$this->telefone,
             'email'=>$this->email,
+            'aniversario'=>Carbon::parse($this->aniversario)->format('d/m/Y '),
+            'services' => ServiceResourcee::collection($this->whenLoaded('servicos'))
         ];
     }
 }

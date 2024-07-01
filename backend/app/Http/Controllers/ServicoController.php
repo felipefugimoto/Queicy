@@ -25,7 +25,7 @@ class ServicoController extends Controller
     {
         $validator= Validator::make($request->all(),[
             'tipo'=> 'required|string|max:255',
-            'descricao'=> 'string',
+            'preco'=> 'required',
             'duracao' =>'required|date_format:H:i'
         ]);
 
@@ -52,7 +52,7 @@ class ServicoController extends Controller
     {
         $validator= Validator::make($request->all(),[
             'tipo'=> 'required|string|max:255',
-            'descricao'=> 'string',
+            'preco'=> 'required',
             'duracao'  =>'required|date_format:H:i'
         ]);
 
@@ -66,7 +66,7 @@ class ServicoController extends Controller
 
         $update = $servico->update([
             'tipo'=> $validated['tipo'],
-            'descricao'=> $validated['descricao'],
+            'preco'=> $validated['preco'],
             'duracao'=> $validated['duracao'],
         ]);
         if ($update) {

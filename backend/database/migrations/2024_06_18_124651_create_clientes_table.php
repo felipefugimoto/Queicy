@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nome',255);
             $table->string('telefone',15);
             $table->string('email',255);
+            $table->date('aniversario');
             $table->timestamps();
         });
     }

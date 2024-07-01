@@ -14,86 +14,74 @@ class ClientesController extends Controller
     use HttpResponse;
     public function index()
     {
+        
         return ClienteResouce::collection(Clientes::all());
     }
 
-    
-    public function store(Request $request)
+    public function getAllClientesWithServices()
     {
-        $validator= Validator::make($request->all(),[
-            'nome'=> 'required|string|max:255',
-            'telefone'=> 'required| string| max:15',
-            'email'=> 'required|email|string|max:255'
-
-        ]);
-
-        if($validator->fails()){
-             return $this->error('Data Invalid', 422, $validator->errors());
-         }
-
-        $create= Clientes::create($validator->validate());
-
-        if($create){
-            return $this->response('Cliente created', 200,  new ClienteResouce($create));
-        }
-        
-        return $this->error('Cliente not created', 400, $create);
-
+        $clientes = Clientes::with('servicos')->get();
+        return ClienteResouce::collection($clientes);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function store(Request $request)
     {
-        return new ClienteResouce(Clientes::where('id',$id)->first());
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:255',
+            'telefone' => 'required|string|max:15',
+            'email' => 'required|email|string|max:255',
+            'aniversario'=> 'required|date_format:Y-m-d',
+   
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error('Data Invalid', 422, $validator->errors());
+        }
+
+        $cliente = Clientes::create($validator->validated());
+
+        if ($request->has('servicos')) {
+            $cliente->servicos()->attach($request->servicos);
+        }
+
+        return $this->response('Cliente created', 200, new ClienteResouce($cliente));
+    }
+
+    public function show($id)
+    {
+        return new ClienteResouce(Clientes::findOrFail($id));
     }
 
     public function update(Request $request, $id)
     {
-        
-        $validator= Validator::make($request->all(),[
-            'nome'=> 'required|string|max:255',
-            'telefone'=> 'required| string| max:15',
-            'email'=> 'required|email|string|max:255'
-
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:255',
+            'telefone' => 'required|string|max:15',
+            'email' => 'required|email|string|max:255',
+            'aniversario'=> 'required|date_format:Y-m-d',
+  
         ]);
-
-     
 
         if ($validator->fails()) {
             return $this->error('Validation failed', 422, $validator->errors());
         }
-        
-        $validated = $validator->validate();
 
-        $clientes= Clientes::find($id);
+        $cliente = Clientes::findOrFail($id);
+        $cliente->update($validator->validated());
 
-        $updated= $clientes->update([
-            'nome'=> $validated['nome'],
-            'telefone'=> $validated['telefone'],
-            'email'=> $validated['email'],
-        ]);
-
-        if ($updated) {
-            return $this->response('Cliente update success', 200,  new ClienteResouce($clientes));
+        if ($request->has('servicos')) {
+            $cliente->servicos()->sync($request->servicos);
         }
-        return $this->error('Cliente not update', 400);
 
+        return $this->response('Cliente updated', 200, new ClienteResouce($cliente));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        $clientes = Clientes::find($id);
+        $cliente = Clientes::findOrFail($id);
+ 
+        $cliente->delete();
 
-        $deleted= $clientes->delete();
-
-        if ($deleted) {
-            return $this->response('Cliente deleted success', 200);
-        }
-        return $this->response('Cliente not deleted', 200);
+        return $this->response('Cliente deleted', 200);
     }
 }

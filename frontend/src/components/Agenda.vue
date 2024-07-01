@@ -1,7 +1,7 @@
 <template>
-  <main class="custom-google-agenda">
+  <main class="custom-google-agenda py-5">
     <!-- Botões para selecionar visualização -->
-    <div class="custom-view-buttons">
+    <div class="custom-view-buttons mt-5">
       <button @click="viewMode = 'day'">Dia</button>
       <button @click="viewMode = 'week'">Semana</button>
     </div>
@@ -27,7 +27,7 @@
           <thead>
             <tr>
               <th>Hora</th>
-              <th>Disponibilidade</th>
+              <th>Queicy de Carvalho</th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +35,7 @@
               <td>{{ time }}</td>
               <td
                 @click="toggleAppointment(timeIndex)"
-                :class="{ 'custom-selected': isSelected(timeIndex), 'custom-unavailable': isUnavailable(timeIndex) }"
+                :class="{ 'custom-selected': isSelected(timeIndex), 'custom-unavailable': isUnavailable(time) }"
               ></td>
             </tr>
           </tbody>
@@ -50,7 +50,7 @@
         <thead>
           <tr>
             <th>Hora / Dia</th>
-            <th v-for="(date, index) in dates" :key="index">{{ formatDate(date, 'ddd D/MM') }}</th>
+            <th v-for="(date, index) in dates" :key="index">{{ formatDate(date, 'ddd, D') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -59,61 +59,45 @@
             <td
               v-for="(date, dateIndex) in dates"
               :key="dateIndex"
-              :class="{ 'custom-selected': isAppointment(dateIndex, timeIndex) }"
+              :class="{ 'custom-selected': isAppointment(dateIndex, timeIndex), 'custom-unavailable': isUnavailable(time) }"
+              @click="isUnavailable(time) ? null : selectDate(date); toggleAppointment(timeIndex)"
             >
-              <div v-if="isAppointment(dateIndex, timeIndex)">
-                {{ getAppointmentInfo(dateIndex, timeIndex) }}
-              </div>
+              <span>{{ getAppointmentInfo(dateIndex, timeIndex) }}</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Modal de Reserva -->
-    <div v-if="selectedAppointment" class="custom-modal">
-      <div class="custom-modal-content">
-        <h2>Confirmar Agendamento</h2>
-        <p>Data: {{ formatDate(selectedAppointment.date, 'dddd, D MMMM') }}</p>
-        <p>Hora: {{ selectedAppointment.time }}</p>
-
-        <label for="professional">Profissional:</label>
-        <select v-model="selectedAppointment.professional">
-          <option v-for="(professional, index) in professionals" :key="index" :value="professional">
-            {{ professional }}
-          </option>
-        </select>
-
-        <label for="service">Serviço:</label>
-        <input type="text" v-model="selectedAppointment.service" placeholder="Digite o serviço">
-
-        <div class="custom-buttons">
-          <button @click="confirmAppointment">Confirmar</button>
-          <button @click="cancelAppointment">Cancelar</button>
-        </div>
-      </div>
-    </div>
+    <!-- Modal para Confirmar Agendamento -->
+    <appointment-modal
+      v-if="selectedAppointment"
+      :appointment="selectedAppointment"
+      :professionais="professionais"
+      :clientes="clientes"
+      :servicos="servicos"
+      @confirm="confirmAppointment"
+      @cancel="cancelAppointment"
+    />
   </main>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
+import AppointmentModal from './AppointmentModal.vue';
 
-// Dados
-const dates = ref([]);
+// Dados iniciais
+const viewMode = ref('day');
 const selectedDate = ref(null);
-const professionals = ref(['Profissional 1', 'Profissional 2', 'Profissional 3']); // Lista de profissionais
-const clients = ref(['Cliente 1', 'Cliente 2', 'Cliente 3']); // Lista de clientes
-const times = ref(['09:00', '10:00', '11:00', '12:00']); // Horários disponíveis
-
-// Estado para manter os agendamentos selecionados
 const selectedAppointments = ref([]);
-
-// Estado para detalhes do agendamento selecionado
 const selectedAppointment = ref(null);
-
-// Estado para controlar a visualização (dia ou semana)
-let viewMode = ref('day');
+const professionais = ref([]);
+const clientes = ref([]);
+const servicos = ref([]);
+const dates = ref([]);
+const times = ref(['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00']);
+const unavailableTimes = ref([]); // Array para armazenar os horários indisponíveis recebidos do backend
 
 // Funções
 const formatDate = (date, format) => {
@@ -125,40 +109,47 @@ const selectDate = (date) => {
 };
 
 const toggleAppointment = (timeIndex) => {
-  if (isUnavailable(timeIndex)) return;
-
-  const appointment = {
-    date: selectedDate.value,
-    time: times.value[timeIndex],
-    professional: '',
-    service: '',
-  };
-
-  selectedAppointment.value = appointment;
-};
-
-const isSelected = (timeIndex) => {
-  const appointment = { date: selectedDate.value, time: times.value[timeIndex] };
-  return selectedAppointments.value.some(a => a.date === appointment.date && a.time === appointment.time);
-};
-
-const isUnavailable = (timeIndex) => {
-  const appointment = { date: selectedDate.value, time: times.value[timeIndex] };
-  return selectedAppointments.value.some(a => a.date === appointment.date && a.time === appointment.time);
+  if (selectedDate.value) {
+    const time = times.value[timeIndex];
+    const appointment = { date: selectedDate.value, time: time, professional: '', client: '', services: [] };
+    selectedAppointment.value = appointment;
+  } else {
+    alert('Selecione uma data primeiro.');
+  }
 };
 
 const confirmAppointment = () => {
   selectedAppointments.value.push(selectedAppointment.value);
   selectedAppointment.value = null;
+
+  axios.post('http://127.0.0.1:8000/api/agendamento', selectedAppointment.value)
+    .then(response => {
+      console.log('Agendamento confirmado:', response.data);
+    })
+    .catch(error => {
+      console.error('Erro ao confirmar agendamento:', error);
+    });
 };
 
 const cancelAppointment = () => {
   selectedAppointment.value = null;
 };
 
+const isSelected = (timeIndex) => {
+  if (selectedDate.value) {
+    const time = times.value[timeIndex];
+    return selectedAppointments.value.some(a => a.date === selectedDate.value && a.time === time);
+  }
+  return false;
+};
+
+const isUnavailable = (time) => {
+  return unavailableTimes.value.includes(time);
+};
+
 const isAppointment = (dateIndex, timeIndex) => {
-  const appointment = { date: dates.value[dateIndex], time: times.value[timeIndex] };
-  return selectedAppointments.value.some(a => a.date === appointment.date && a.time === appointment.time);
+  const appointment = selectedAppointments.value.find(a => a.date === dates.value[dateIndex] && a.time === times.value[timeIndex]);
+  return appointment !== undefined;
 };
 
 const getAppointmentInfo = (dateIndex, timeIndex) => {
@@ -169,21 +160,57 @@ const getAppointmentInfo = (dateIndex, timeIndex) => {
   return '';
 };
 
+// Busca de profissionais e serviços via Axios
+axios.get('http://127.0.0.1:8000/api/profissional')
+  .then(response => {
+    professionais.value = response.data.data;
+  })
+  .catch(error => {
+    console.error('Erro ao buscar profissionais:', error);
+  });
+
+axios.get('http://127.0.0.1:8000/api/servico')
+  .then(response => {
+    servicos.value = response.data.data;
+  })
+  .catch(error => {
+    console.error('Erro ao buscar serviços:', error);
+  });
+
+axios.get('http://127.0.0.1:8000/api/cliente')
+  .then(response => {
+    clientes.value = response.data.data;
+  })
+  .catch(error => {
+    console.error('Erro ao buscar clientes:', error);
+  });
+
 // Simulação de dados de datas disponíveis (substitua com dados reais do backend)
-// Aqui, estou apenas gerando algumas datas para demonstração
-for (let i = 0; i < 7; i++) { // Mostra apenas uma semana (7 dias)
+for (let i = 0; i < 7; i++) {
   const date = new Date();
   date.setDate(date.getDate() + i);
   dates.value.push(date);
 }
+
+// Simulação de dados de horários indisponíveis (substitua com dados reais do backend)
+axios.get('http://127.0.0.1:8000/api/horarios-indisponiveis')
+  .then(response => {
+    unavailableTimes.value = response.data.data.map(item => item.time);
+  })
+  .catch(error => {
+    console.error('Erro ao buscar horários indisponíveis:', error);
+  });
 </script>
 
 <style scoped>
 /* Estilos CSS personalizados para evitar conflitos */
-.custom-google-agenda {
-  width: 75vw !important;
-  margin: 0 15%;
-  padding: 0;
+
+.delete-button {
+  color: white;
+  background-color: #e53935 !important; /* Cor vermelha */
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }
 
 .custom-view-buttons {
@@ -269,7 +296,7 @@ for (let i = 0; i < 7; i++) { // Mostra apenas uma semana (7 dias)
 }
 
 .custom-selected {
-  background-color: #4CAF50; /* Cor de fundo para horário selecionado */
+  background-color: #00f308; /* Cor de fundo para horário selecionado */
   color: white;
 }
 
@@ -279,18 +306,19 @@ for (let i = 0; i < 7; i++) { // Mostra apenas uma semana (7 dias)
 }
 
 .custom-modal {
+  width: 650px;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
-  padding: 20px;
+  padding: 3%;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 999;
 }
 
 .custom-modal-content {
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
 }
 

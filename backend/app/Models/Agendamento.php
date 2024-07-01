@@ -9,21 +9,32 @@ class Agendamento extends Model
 {
     use HasFactory;
 
-    protected $fillable =[
+    protected $fillable = [
+        'id',
         'cliente_id',
-        'servico_id',
         'profissional_id',
+        
         'data',
         'hora',
         'status',
         'pagamento',
         'preco',
-        'data_pagamento'
     ];
 
-    public function cliente(){return $this->belongsTo(Clientes::class);}
+    public function cliente()
+    {
+        return $this->belongsTo(Clientes::class);
+    }
+    public function profissional()
+    {
+        return $this->belongsTo(Profissional::class);
+    }
 
-    public function servico(){return $this->belongsTo(Servico::class);}
 
-    public function profissional(){return $this->belongsTo(Profissional::class);}
+
+    public function servicos()
+    {
+        return $this->belongsToMany(Servico::class, 'cliente_servico', 'agendamento_id', 'servico_id')
+                    ->withPivot('id');
+    }
 }

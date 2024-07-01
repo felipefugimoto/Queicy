@@ -13,23 +13,14 @@ return new class extends Migration
     {
         Schema::create('agendamentos', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('cliente_id');
-            $table->foreign('cliente_id')->references('id')->on('clientes');
-
-            $table->unsignedBigInteger('servico_id');
-            $table->foreign('servico_id')->references('id')->on('servicos');
-
-            $table->unsignedBigInteger('profissional_id');
-            $table->foreign('profissional_id')->references('id')->on('profissionais');
-
+            $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
+            $table->foreignId('profissional_id')->constrained()->onDelete('cascade');
             $table->date('data');
             $table->time('hora');
-            $table->boolean('status');
+            $table->integer('status');
             $table->string('pagamento');
-            $table->decimal('preco',10,2);
+            $table->decimal('preco', 10, 2);
             $table->datetime('data_pagamento')->nullable();
-
             $table->timestamps();
         });
     }

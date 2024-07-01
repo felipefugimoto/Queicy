@@ -17,7 +17,7 @@ class ServiceResourcee extends JsonResource
     {
         return [
             'tipo'=>$this->tipo,
-            'descricao'=>$this->descricao,
+            'preco'=>'R$'.number_format($this->preco,2, ',', '.'),
             'duracao'=> Carbon::parse($this->duracao)->format('H:i')
         ];
     }

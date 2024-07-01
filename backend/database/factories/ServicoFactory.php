@@ -17,9 +17,10 @@ class ServicoFactory extends Factory
     public function definition(): array
     {
         return [
-            'tipo'=>$this->faker->randomElement(['Coloração e Mechas','Corte de Cabelo','Alisamento e Relaxamento','Penteados e Estilização']),
-            'descricao' =>$this->faker->text,
-            'duracao'=>$this->faker->time(),
+            'tipo' => $this->faker->word,
+            'preco' => $this->faker->randomFloat(2, 50, 500),
+            'duracao' => $this->faker->time(),
+           
         ];
     }
 }

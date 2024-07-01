@@ -1,13 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import TabelaCliente from '@/components/TabelaCliente.vue';
+import FormClienteVue from '@/components/FormCliente.vue';
+FormClienteVue
+
 
 </script>
 
 <template>
   <main id="main" class="main" >
-   <TabelaCliente/>
+   <FormClienteVue/>
+  
   </main>
 </template>
 
