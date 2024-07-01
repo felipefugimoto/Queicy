@@ -1,5 +1,5 @@
 <template>
-  <main class="custom-google-agenda py-5">
+  <main class="custom-google-agenda py-">
     <!-- Botões para selecionar visualização -->
     <div class="custom-view-buttons mt-5">
       <button @click="viewMode = 'day'">Dia</button>
@@ -35,7 +35,7 @@
               <td>{{ time }}</td>
               <td
                 @click="toggleAppointment(timeIndex)"
-                :class="{ 'custom-selected': isSelected(timeIndex), 'custom-unavailable': isUnavailable(time) }"
+                :class="{ 'custom-selected': isSelected(timeIndex), 'custom-unavailable': isUnavailable(timeIndex) }"
               ></td>
             </tr>
           </tbody>
@@ -59,8 +59,8 @@
             <td
               v-for="(date, dateIndex) in dates"
               :key="dateIndex"
-              :class="{ 'custom-selected': isAppointment(dateIndex, timeIndex), 'custom-unavailable': isUnavailable(time) }"
-              @click="isUnavailable(time) ? null : selectDate(date); toggleAppointment(timeIndex)"
+              :class="{ 'custom-selected': isAppointment(dateIndex, timeIndex), 'custom-unavailable': isUnavailable(timeIndex) }"
+              @click="isUnavailable(timeIndex) ? null : selectDate(date); toggleAppointment(timeIndex)"
             >
               <span>{{ getAppointmentInfo(dateIndex, timeIndex) }}</span>
             </td>
@@ -83,13 +83,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import AppointmentModal from './AppointmentModal.vue';
 
 // Dados iniciais
 const viewMode = ref('day');
-const selectedDate = ref(null);
+const selectedDate = ref(new Date()); // Inicializa com a data atual
 const selectedAppointments = ref([]);
 const selectedAppointment = ref(null);
 const professionais = ref([]);
@@ -97,7 +97,6 @@ const clientes = ref([]);
 const servicos = ref([]);
 const dates = ref([]);
 const times = ref(['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00']);
-const unavailableTimes = ref([]); // Array para armazenar os horários indisponíveis recebidos do backend
 
 // Funções
 const formatDate = (date, format) => {
@@ -143,8 +142,8 @@ const isSelected = (timeIndex) => {
   return false;
 };
 
-const isUnavailable = (time) => {
-  return unavailableTimes.value.includes(time);
+const isUnavailable = (timeIndex) => {
+  return selectedDate.value && times.value[timeIndex] === '11:00';
 };
 
 const isAppointment = (dateIndex, timeIndex) => {
@@ -186,20 +185,13 @@ axios.get('http://127.0.0.1:8000/api/cliente')
   });
 
 // Simulação de dados de datas disponíveis (substitua com dados reais do backend)
-for (let i = 0; i < 7; i++) {
-  const date = new Date();
-  date.setDate(date.getDate() + i);
-  dates.value.push(date);
-}
-
-// Simulação de dados de horários indisponíveis (substitua com dados reais do backend)
-axios.get('http://127.0.0.1:8000/api/horarios-indisponiveis')
-  .then(response => {
-    unavailableTimes.value = response.data.data.map(item => item.time);
-  })
-  .catch(error => {
-    console.error('Erro ao buscar horários indisponíveis:', error);
-  });
+onMounted(() => {
+  for (let i = 0; i < 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    dates.value.push(date);
+  }
+});
 </script>
 
 <style scoped>
