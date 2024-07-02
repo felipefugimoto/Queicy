@@ -1,7 +1,7 @@
 <template>
-  <main class="custom-google-agenda py-">
+  <main class="custom-google-agenda mb-5">
     <!-- Botões para selecionar visualização -->
-    <div class="custom-view-buttons mt-5">
+    <div class="custom-view-buttons mt-5 pt-5">
       <button @click="viewMode = 'day'">Dia</button>
       <button @click="viewMode = 'week'">Semana</button>
     </div>
